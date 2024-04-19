@@ -18,11 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.accenture.exception.ResourceNotFound;
 import com.accenture.model.AuthRequest;
 import com.accenture.service.CustomUserDetailService;
+import com.accenture.service.KafkaProducer;
 import com.accenture.util.JwtUtil;
 
 @RestController
 @RequestMapping("/security")
 public class AuthorizationController {
+
+	@Autowired
+    KafkaProducer kafkaProducer;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationController.class);
 
@@ -74,6 +78,7 @@ public class AuthorizationController {
 
 			if (jwtUtil.validateToken(token, user)) {
 				LOGGER.info("END - authorization");
+				 kafkaProducer.sendMessageToTopic("User is verified to use the application.");
 				return new ResponseEntity<>(true, HttpStatus.OK);
 			} else {
 				LOGGER.info("END - authorization");
